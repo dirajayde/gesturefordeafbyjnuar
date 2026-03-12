@@ -149,26 +149,26 @@
         let lastGesture = '';
         let gestureTimer = 0;
 
-        // Fungsi untuk menampilkan error
+        
         function showError(message) {
             errorText.style.display = 'block';
             errorText.innerHTML = `❌ ${message}`;
             loadingText.style.display = 'none';
         }
 
-        // Fungsi untuk menampilkan status
+        
         function updateStatus(message) {
             statusText.innerHTML = `📊 Status: ${message}`;
         }
 
-        // Fungsi untuk update gesture info
+        
         function updateGestureInfo(emoji, name) {
             gestureInfo.style.display = 'block';
             gestureEmoji.textContent = emoji;
             gestureName.textContent = name;
         }
 
-        // Fungsi untuk deteksi gesture tangan
+        
         function detectGesture(landmarks) {
             const thumbTip = landmarks[4];
             const thumbIP = landmarks[3];
@@ -187,12 +187,12 @@
             const pinkyMCP = landmarks[17];
             const wrist = landmarks[0];
 
-            // Cek apakah jari terbuka atau tertutup
+            
             function isFingerOpen(tip, pip, mcp) {
                 return tip.y < pip.y && tip.y < mcp.y;
             }
 
-            // Hitung jumlah jari terbuka
+            
             const fingersOpen = [
                 isFingerOpen(thumbTip, thumbIP, thumbMCP),
                 isFingerOpen(indexTip, indexPIP, indexMCP),
@@ -201,40 +201,40 @@
                 isFingerOpen(pinkyTip, pinkyPIP, pinkyMCP)
             ].filter(Boolean).length;
 
-            // Cek posisi jari telunjuk dan jari tengah
+            
             const indexExtended = indexTip.y < indexPIP.y;
             const middleExtended = middleTip.y < middlePIP.y;
             const ringExtended = ringTip.y < ringPIP.y;
             const pinkyExtended = pinkyTip.y < pinkyPIP.y;
 
-            // Cek jarak antara jari telunjuk dan ibu jari
+            
             const thumbIndexDistance = Math.sqrt(
                 Math.pow(thumbTip.x - indexTip.x, 2) + 
                 Math.pow(thumbTip.y - indexTip.y, 2)
             );
 
-            // Cek jarak antara jari telunjuk dan kelingking
+            
             const indexPinkyDistance = Math.sqrt(
                 Math.pow(indexTip.x - pinkyTip.x, 2) + 
                 Math.pow(indexTip.y - pinkyTip.y, 2)
             );
 
-            // Deteksi gesture
+            
             let gesture = { emoji: '👋', name: 'Tidak ada gesture' };
 
-            // 🫶 LOVE HANDS (Dua tangan dengan jari terbuka)
+            
             if (fingersOpen >= 4 && indexExtended && middleExtended) {
                 gesture = { emoji: '🫶', name: 'Love Hands' };
             }
-            // 🤘 ROCK ON (Jari telunjuk dan kelingking)
+            
             else if (indexExtended && pinkyExtended && !middleExtended && !ringExtended) {
                 gesture = { emoji: '🤘', name: 'Rock On' };
             }
-            // 🤟 I LOVE YOU (Jari telunjuk, tengah, kelingking)
+            
             else if (indexExtended && middleExtended && pinkyExtended && !ringExtended) {
                 gesture = { emoji: '🤟', name: 'I Love You' };
             }
-            // 👍 THUMBS UP (Ibu jari naik, jari lain turun)
+            
             else if (isFingerOpen(thumbTip, thumbIP, thumbMCP) && 
                      !isFingerOpen(indexTip, indexPIP, indexMCP) &&
                      !isFingerOpen(middleTip, middlePIP, middleMCP) &&
@@ -242,7 +242,7 @@
                      !isFingerOpen(pinkyTip, pinkyPIP, pinkyMCP)) {
                 gesture = { emoji: '👍', name: 'Thumbs Up' };
             }
-            // 👌 OK SIGN (Ibu jari dan telunjuk membentuk lingkaran)
+            
             else if (thumbIndexDistance < 0.1 && 
                      !isFingerOpen(indexTip, indexPIP, indexMCP) &&
                      !isFingerOpen(middleTip, middlePIP, middleMCP) &&
@@ -250,23 +250,23 @@
                      !isFingerOpen(pinkyTip, pinkyPIP, pinkyMCP)) {
                 gesture = { emoji: '👌', name: 'OK Sign' };
             }
-            // 🖕 MIDDLE FINGER (Hanya jari tengah naik)
+            
             else if (middleExtended && !indexExtended && !ringExtended && !pinkyExtended) {
                 gesture = { emoji: '🖕', name: 'Middle Finger' };
             }
-            // 🫰 PINCH (Jari telunjuk dan ibu jari berdekatan)
+            
             else if (thumbIndexDistance < 0.05 && fingersOpen === 2) {
                 gesture = { emoji: '🫰', name: 'Pinch' };
             }
-            // ✋ OPEN HAND (Semua jari terbuka)
+            
             else if (fingersOpen === 5) {
                 gesture = { emoji: '✋', name: 'Open Hand' };
             }
-            // ✊ CLOSED FIST (Semua jari tertutup)
+            
             else if (fingersOpen === 0) {
                 gesture = { emoji: '✊', name: 'Closed Fist' };
             }
-            // 👆 POINTING (Hanya jari telunjuk naik)
+            
             else if (indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
                 gesture = { emoji: '👆', name: 'Pointing' };
             }
@@ -274,31 +274,31 @@
             return gesture;
         }
 
-        // Fungsi untuk menggambar hasil
+        
         function onResults(results) {
             frameCount++;
             
-            // Sembunyikan loading setelah beberapa frame
+            
             if (frameCount > 10) {
                 loadingText.style.display = 'none';
             }
             
-            // Set ukuran canvas
+            
             canvasElement.width = videoElement.videoWidth;
             canvasElement.height = videoElement.videoHeight;
             
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
             
-            // Gambar video asli
+            
             canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-            // Update status
+            
             faceCount = results.multiFaceLandmarks ? results.multiFaceLandmarks.length : 0;
             handCount = results.multiHandLandmarks ? results.multiHandLandmarks.length : 0;
             updateStatus(`👤 Wajah: ${faceCount} | ✋ Tangan: ${handCount} | 🎬 Frame: ${frameCount}`);
 
-            // 1. FACE MESH - JARING WAJAH (HIJAU)
+            
             if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
                 console.log('✅ Face detected:', results.multiFaceLandmarks.length);
                 
@@ -315,12 +315,12 @@
                 }
             }
 
-            // 2. HAND TRACKING - TANGAN (MERAH) + GESTURE
+            
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 console.log('✅ Hand detected:', results.multiHandLandmarks.length);
                 
                 for (const landmarks of results.multiHandLandmarks) {
-                    // Gambar jaring tangan (MERAH)
+                    
                     drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
                         color: '#FF0000',
                         lineWidth: 3
@@ -331,10 +331,10 @@
                         radius: 2
                     });
 
-                    // Deteksi gesture
+                    
                     const gesture = detectGesture(landmarks);
                     
-                    // Update gesture info (hanya jika berubah)
+                    
                     if (gesture.name !== lastGesture) {
                         updateGestureInfo(gesture.emoji, gesture.name);
                         lastGesture = gesture.name;
@@ -342,7 +342,7 @@
                     }
                 }
             } else {
-                // Reset gesture jika tidak ada tangan
+                
                 if (lastGesture !== '') {
                     updateGestureInfo('👋', 'Tidak ada gesture');
                     lastGesture = '';
@@ -352,7 +352,7 @@
             canvasCtx.restore();
         }
 
-        // --- KONFIGURASI FACE MESH ---
+        
         const faceMesh = new FaceMesh({
             locateFile: (file) => {
                 return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
@@ -369,7 +369,7 @@
 
         faceMesh.onResults(onResults);
 
-        // --- KONFIGURASI HANDS ---
+        
         const hands = new Hands({
             locateFile: (file) => {
                 return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
